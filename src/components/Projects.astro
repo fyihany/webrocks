@@ -1,0 +1,95 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+---
+
+<section id="projects" aria-labelledby="projects-heading">
+  <div class="divider"></div>
+  <div class="container section-inner">
+    <span class="section-label">{t.labels.portfolio}</span>
+    <h2 class="section-title" id="projects-heading">{t.projects.title}</h2>
+    <p class="section-sub">{t.projects.sub}</p>
+
+    <ul class="projects-grid" role="list">
+      {t.projects.items.map((project) => (
+        <li class={`card project-card reveal${project.featured ? ' featured' : ''}`} data-badge={project.featured ? t.projects.featuredBadge : undefined}>
+          <h3 class="project-title">{project.name}</h3>
+          <p class="project-desc">{project.desc}</p>
+          <ul class="project-tags" role="list" aria-label={t.projects.tagsLabel}>
+            {project.tags.map((tag) => (
+              <li class="tag">{tag}</li>
+            ))}
+          </ul>
+          {project.href && (
+            <a href={project.href} class="project-link" target="_blank" rel="noopener noreferrer"
+              aria-label={`${t.projects.live}: ${project.name} (${t.a11y.opensNewTab})`}>
+              {t.projects.live}
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, i) => {
+      if (card.getBoundingClientRect().top < window.innerHeight) {
+        return;
+      }
+      gsap.fromTo(card,
+        { x: i % 2 === 0 ? -24 : 24 },
+        {
+          x: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          clearProps: 'transform',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 92%',
+            once: true,
+          },
+        }
+      );
+    });
+
+    if (document.readyState === 'complete') {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+    }
+
+    const snapProjects = () => {
+      gsap.utils.toArray<HTMLElement>('.project-card').forEach(card => {
+        const tweens = gsap.getTweensOf(card);
+        if (
+          !gsap.isTweening(card) &&
+          !tweens.some(t => (t as any)._ts !== 0) &&
+          (gsap.getProperty(card, 'x') as number) !== 0 &&
+          card.getBoundingClientRect().top < window.innerHeight
+        ) {
+          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(card, { clearProps: 'transform' });
+        }
+      });
+    };
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', snapProjects);
+    } else {
+      let _pjt: ReturnType<typeof setTimeout>;
+      window.addEventListener('scroll', () => { clearTimeout(_pjt); _pjt = setTimeout(snapProjects, 200); }, { passive: true });
+    }
+  }
+</script>

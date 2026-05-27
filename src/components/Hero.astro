@@ -1,0 +1,94 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+---
+
+<section class="hero" id="hero" aria-labelledby="hero-name">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <div class="container hero-content">
+    <p class="hero-greeting" id="hero-greeting">{t.hero.greeting}</p>
+    <h1 class="hero-name" id="hero-name">{t.hero.name}</h1>
+
+    <p class="hero-headline" id="hero-headline" aria-label={t.hero.headline.join(' ')}>
+      {t.hero.headline.map((word, i) => (
+        <span class={`word${i === 2 ? ' word-accent' : ''}`} aria-hidden="true">
+          {word}{' '}
+        </span>
+      ))}
+    </p>
+
+    <p class="hero-sub" id="hero-sub">{t.hero.sub}</p>
+
+    <div class="hero-cta" id="hero-cta">
+      <a href="#services" class="btn btn-primary">{t.hero.cta1}</a>
+      <a href="#contact" class="btn btn-ghost">{t.hero.cta2}</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <svg class="scroll-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <polyline points="19 12 12 19 5 12"/>
+    </svg>
+  </div>
+</section>
+
+<script>
+  import { createTimeline, utils } from 'animejs';
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    const tl = createTimeline({ easing: 'easeOutExpo' });
+
+    tl
+      .add('#hero-greeting', {
+        opacity: [0, 1],
+        translateY: [12, 0],
+        duration: 500,
+        delay: 50,
+      })
+      .add('#hero-name', {
+        opacity: [0, 1],
+        translateY: [30, 0],
+        duration: 700,
+      }, '-=300')
+      .add('#hero-headline .word', {
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 500,
+        delay: utils.stagger(120),
+      }, '-=400')
+      .add('#hero-sub', {
+        opacity: [0, 1],
+        translateY: [16, 0],
+        duration: 600,
+      }, '-=200')
+      .add('#hero-cta', {
+        opacity: [0, 1],
+        translateY: [16, 0],
+        duration: 600,
+      }, '-=400');
+  }
+</script>
+
+<noscript>
+  <style>
+    #hero-greeting, #hero-name, #hero-headline .word, #hero-sub, #hero-cta { opacity: 1 !important; }
+  </style>
+</noscript>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    #hero-greeting,
+    #hero-name,
+    #hero-headline .word,
+    #hero-sub,
+    #hero-cta {
+      opacity: 0;
+    }
+  }
+</style>

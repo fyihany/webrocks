@@ -1,0 +1,101 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+---
+
+<section id="pricing" aria-labelledby="pricing-heading">
+  <div class="divider"></div>
+  <div class="container section-inner">
+    <div class="pricing-top reveal">
+      <div>
+        <span class="section-label">{t.labels.pricing}</span>
+        <h2 class="section-title" id="pricing-heading">{t.pricing.title}</h2>
+        <p class="section-sub">{t.pricing.sub}</p>
+      </div>
+      <dl class="pricing-rate">
+        <dt class="pricing-rate-label">{t.pricing.rateLabel}</dt>
+        <dd class="pricing-rate-value">{t.pricing.rate}</dd>
+      </dl>
+    </div>
+
+    <ul class="pricing-grid" role="list">
+      {t.pricing.items.map((item) => (
+        <li class={`card pricing-card reveal${item.featured ? ' featured' : ''}`} data-badge={item.featured ? t.pricing.featuredBadge : undefined}>
+          <h3 class="pricing-title">{item.title}</h3>
+          <p class="pricing-price">{item.price}</p>
+          <ul class="pricing-features" role="list">
+            {item.features.map((f) => (
+              <li class="pricing-feature">{f}</li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+
+    <p class="pricing-note reveal">{t.pricing.note}</p>
+
+    <div class="pricing-cta reveal">
+      <a href="#contact" class="btn btn-primary">{t.pricing.cta}</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('#pricing .reveal').forEach((el, i) => {
+      if (el.getBoundingClientRect().top < window.innerHeight) {
+        return;
+      }
+      gsap.fromTo(el,
+        { y: 22 },
+        {
+          y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          delay: i * 0.04,
+          clearProps: 'transform',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 92%',
+            once: true,
+          },
+        }
+      );
+    });
+
+    if (document.readyState === 'complete') {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+    }
+
+    const snapPricing = () => {
+      gsap.utils.toArray<HTMLElement>('#pricing .reveal').forEach(el => {
+        const tweens = gsap.getTweensOf(el);
+        if (
+          !gsap.isTweening(el) &&
+          !tweens.some(t => (t as any)._ts !== 0) &&
+          (gsap.getProperty(el, 'y') as number) !== 0 &&
+          el.getBoundingClientRect().top < window.innerHeight
+        ) {
+          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(el, { clearProps: 'transform' });
+        }
+      });
+    };
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', snapPricing);
+    } else {
+      let _pt: ReturnType<typeof setTimeout>;
+      window.addEventListener('scroll', () => { clearTimeout(_pt); _pt = setTimeout(snapPricing, 200); }, { passive: true });
+    }
+  }
+</script>

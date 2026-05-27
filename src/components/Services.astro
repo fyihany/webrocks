@@ -1,0 +1,90 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+
+const icons: Record<string, string> = {
+  globe: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  bolt: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  chart: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  puzzle: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+  code: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+};
+---
+
+<section id="services" aria-labelledby="services-heading">
+  <div class="container">
+    <span class="section-label">{t.labels.services}</span>
+    <h2 class="section-title" id="services-heading">{t.services.title}</h2>
+    <p class="section-sub">{t.services.sub}</p>
+
+    <ul class="services-grid" role="list">
+      {t.services.items.map((item) => (
+        <li class="card service-card reveal">
+          <div class="service-icon" set:html={icons[item.icon]} />
+          <h3>{item.title}</h3>
+          <p>{item.desc}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('.service-card').forEach((card, i) => {
+      if (card.getBoundingClientRect().top < window.innerHeight) {
+        return;
+      }
+      gsap.fromTo(card,
+        { y: 28 },
+        {
+          y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          delay: (i % 3) * 0.07,
+          clearProps: 'transform',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 92%',
+            once: true,
+          },
+        }
+      );
+    });
+
+    if (document.readyState === 'complete') {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+    }
+
+    const snapServices = () => {
+      gsap.utils.toArray<HTMLElement>('.service-card').forEach(card => {
+        const tweens = gsap.getTweensOf(card);
+        if (
+          !gsap.isTweening(card) &&
+          !tweens.some(t => (t as any)._ts !== 0) &&
+          (gsap.getProperty(card, 'y') as number) !== 0 &&
+          card.getBoundingClientRect().top < window.innerHeight
+        ) {
+          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(card, { clearProps: 'transform' });
+        }
+      });
+    };
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', snapServices);
+    } else {
+      let _st: ReturnType<typeof setTimeout>;
+      window.addEventListener('scroll', () => { clearTimeout(_st); _st = setTimeout(snapServices, 200); }, { passive: true });
+    }
+  }
+</script>

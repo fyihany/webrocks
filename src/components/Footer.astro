@@ -1,0 +1,19 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+const year = new Date().getFullYear();
+const copy = t.footer.copy.replace('2025', String(year));
+---
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <p class="footer-copy">{copy} &nbsp;·&nbsp; {t.footer.ico}</p>
+      <p class="footer-made">{t.footer.made}</p>
+    </div>
+    <a href={t.lang === 'cs' ? '/' : '/en/'} class="logo footer-logo" aria-label={t.a11y.logoTop}>
+      web<span>rocks</span>
+    </a>
+  </div>
+</footer>

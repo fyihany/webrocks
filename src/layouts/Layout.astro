@@ -1,0 +1,388 @@
+---
+import '../styles/global.css';
+import type { Translations } from '../i18n/cs';
+
+interface Props {
+  t: Translations;
+  canonicalUrl?: string;
+  noIndex?: boolean;
+}
+
+const { t, canonicalUrl, noIndex } = Astro.props;
+const isEn = t.lang === 'en';
+const altHref = isEn ? 'https://webrocks.cz/' : 'https://webrocks.cz/en/';
+const altLang = isEn ? 'cs' : 'en';
+const canonical = canonicalUrl ?? (isEn ? 'https://webrocks.cz/en/' : 'https://webrocks.cz/');
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': 'https://webrocks.cz/#person',
+  name: 'Tomáš Hanus',
+  url: 'https://webrocks.cz',
+  email: 'webrocks.cz@gmail.com',
+  jobTitle: isEn ? 'Web Developer' : 'Webový vývojář',
+  knowsAbout: ['JavaScript', 'React', 'Next.js', 'Web Performance', 'Google Analytics', 'Chrome Extensions'],
+  sameAs: ['https://www.pagami.cz'],
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://webrocks.cz/#website',
+  name: 'webrocks.cz',
+  url: 'https://webrocks.cz',
+  description: isEn
+    ? 'Web development, performance audit and web analytics services for individuals and small businesses.'
+    : 'Tvorba webů, performance audit a webová analytika pro jednotlivce a malé firmy.',
+  inLanguage: isEn ? 'en' : 'cs',
+  author: { '@id': 'https://webrocks.cz/#person' },
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': 'https://webrocks.cz/#service',
+  name: 'webrocks',
+  url: 'https://webrocks.cz',
+  email: 'webrocks.cz@gmail.com',
+  taxID: '22166297',
+  priceRange: isEn ? 'from 400 CZK/hr' : 'od 400 Kč/hod',
+  areaServed: { '@type': 'Country', name: 'Czech Republic' },
+  founder: { '@id': 'https://webrocks.cz/#person' },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'webrocks.cz@gmail.com',
+    availableLanguage: ['Czech', 'English'],
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: isEn ? 'Web Development Services' : 'Webové služby',
+    itemListElement: [
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: isEn ? 'Web development' : 'Tvorba webů' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: isEn ? 'Performance audit' : 'Performance audit' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: isEn ? 'Web analytics' : 'Webová analytika' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: isEn ? 'Chrome extensions' : 'Chrome rozšíření' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: isEn ? 'Web applications' : 'Webové aplikace' } },
+    ],
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'webrocks.cz', item: canonical },
+  ],
+};
+---
+
+<!doctype html>
+<html lang={t.lang} dir={t.dir} data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>{t.meta.title}</title>
+  <meta name="description" content={t.meta.description} />
+  <meta name="keywords" content={t.meta.keywords} />
+  <meta name="author" content="webrocks" />
+  <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
+  <meta name="theme-color" content="#070711" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f7f7fb" media="(prefers-color-scheme: light)" />
+
+  <link rel="canonical" href={canonical} />
+  <link rel="alternate" hreflang={altLang} href={altHref} />
+  <link rel="alternate" hreflang={t.lang} href={canonical} />
+  <link rel="alternate" hreflang="x-default" href="https://webrocks.cz/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={t.meta.title} />
+  <meta property="og:description" content={t.meta.description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content="webrocks.cz" />
+  <meta property="og:locale" content={t.locale} />
+  <meta property="og:locale:alternate" content={isEn ? 'cs_CZ' : 'en_US'} />
+  <meta property="og:image" content={`https://webrocks.cz${t.meta.ogImage}`} />
+  <meta property="og:image:alt" content={t.meta.ogImageAlt} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={t.meta.title} />
+  <meta name="twitter:description" content={t.meta.description} />
+  <meta name="twitter:image" content={`https://webrocks.cz${t.meta.ogImage}`} />
+  <meta name="twitter:image:alt" content={t.meta.ogImageAlt} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://formspree.io" crossorigin />
+  <link rel="dns-prefetch" href="https://formspree.io" />
+
+  <script is:inline>
+    (function () {
+      try {
+        const stored = localStorage.getItem('theme');
+        const preferred = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = stored ?? preferred;
+      } catch (e) {}
+    })();
+  </script>
+
+  <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+</head>
+<body>
+  <a href="#main" class="skip-link">{t.a11y.skipToContent}</a>
+  <slot />
+  <script>
+    const header = document.querySelector('.header');
+    const heroScroll = document.querySelector<HTMLElement>('.hero-scroll');
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-links a[href^="#"]');
+    const sections = ['services', 'projects', 'pricing', 'contact']
+      .map(id => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
+
+    function updateScrollSpy() {
+      const scrollY = window.scrollY;
+      header?.classList.toggle('scrolled', scrollY > 40);
+      if (heroScroll) heroScroll.style.opacity = scrollY > 80 ? '0' : '';
+
+      let current = '';
+      for (const section of sections) {
+        if (scrollY >= section.offsetTop - 120) current = section.id;
+      }
+      navLinks.forEach(a => {
+        const isActive = a.getAttribute('href') === `#${current}`;
+        a.classList.toggle('active', isActive);
+        if (isActive) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      });
+    }
+
+    window.addEventListener('scroll', updateScrollSpy, { passive: true });
+    updateScrollSpy();
+
+    document.addEventListener('click', (e) => {
+      const link = (e.target as Element).closest('a[href^="#"]');
+      if (!link) return;
+      const hash = link.getAttribute('href')!;
+      const target = document.querySelector(hash);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+      history.pushState(null, '', hash);
+    });
+  </script>
+
+  <script>
+    // ── Cursor displacement ripple ────────────────────────────────────────────
+    const crPrefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const crPointerCoarse  = window.matchMedia('(pointer: coarse)').matches;
+
+    if (!crPrefersReduced && !crPointerCoarse) {
+      const T = 64;
+      const SCALE = 7;
+      const FILT_ID = '__crflt__';
+
+      let crActive = false;
+      let crMainEl: HTMLElement;
+      let crSvg: SVGSVGElement | null = null;
+      let crFilt: Element | null = null;
+      let crFeImg: Element | null = null;
+      let crCanvas: HTMLCanvasElement | null = null;
+      let crCtx: CanvasRenderingContext2D | null = null;
+      let crMx = 0, crMy = 0, crPrevMx = 0, crPrevMy = 0;
+      let crRaf: number | null = null;
+      let crWaveA: Float32Array | null = null;
+      let crWaveB: Float32Array | null = null;
+      const CR_C2 = 0.25, CR_DAMP = 0.986;
+
+      function crBuild() {
+        const NS = 'http://www.w3.org/2000/svg';
+        crSvg = document.createElementNS(NS, 'svg') as SVGSVGElement;
+        crSvg.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;';
+        crSvg.setAttribute('aria-hidden', 'true');
+
+        crFilt  = document.createElementNS(NS, 'filter');
+        crFeImg = document.createElementNS(NS, 'feImage');
+        const feDisp = document.createElementNS(NS, 'feDisplacementMap');
+        const defs   = document.createElementNS(NS, 'defs');
+
+        crFilt.setAttribute('id', FILT_ID);
+        crFilt.setAttribute('filterUnits', 'userSpaceOnUse');
+        crFilt.setAttribute('color-interpolation-filters', 'sRGB');
+
+        crFeImg.setAttribute('result', 'dmap');
+        crFeImg.setAttribute('preserveAspectRatio', 'none');
+
+        feDisp.setAttribute('in', 'SourceGraphic');
+        feDisp.setAttribute('in2', 'dmap');
+        feDisp.setAttribute('scale', String(SCALE));
+        feDisp.setAttribute('xChannelSelector', 'R');
+        feDisp.setAttribute('yChannelSelector', 'G');
+
+        crFilt.append(crFeImg, feDisp);
+        defs.append(crFilt);
+        crSvg.append(defs);
+        document.body.appendChild(crSvg);
+
+        crCanvas = document.createElement('canvas');
+        crCanvas.width = crCanvas.height = T;
+        crCtx = crCanvas.getContext('2d')!;
+      }
+
+      function crAddImpulse(mx: number, my: number, strength: number) {
+        if (!crWaveA) return;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const cx = (mx / vw) * T, cy = (my / vh) * T;
+        const sigma = 1.2, sigma2 = sigma * sigma, r = Math.ceil(sigma * 3);
+        for (let dy = -r; dy <= r; dy++) {
+          for (let dx = -r; dx <= r; dx++) {
+            const px = Math.round(cx + dx), py = Math.round(cy + dy);
+            if (px < 1 || px >= T - 1 || py < 1 || py >= T - 1) continue;
+            crWaveA[py * T + px] += strength * Math.exp(-(dx * dx + dy * dy) / (2 * sigma2));
+          }
+        }
+      }
+
+      function crStepWave() {
+        if (!crWaveA || !crWaveB) return;
+        for (let y = 1; y < T - 1; y++) {
+          for (let x = 1; x < T - 1; x++) {
+            const i = y * T + x;
+            const lap = crWaveA[i + 1] + crWaveA[i - 1] + crWaveA[i + T] + crWaveA[i - T] - 4 * crWaveA[i];
+            crWaveB[i] = (2 * crWaveA[i] - crWaveB[i] + CR_C2 * lap) * CR_DAMP;
+          }
+        }
+        const tmp = crWaveA; crWaveA = crWaveB; crWaveB = tmp;
+      }
+
+      function crRender() {
+        if (!crCtx || !crCanvas || !crFeImg || !crFilt || !crMainEl || !crWaveA) return;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const fy = Math.round(-crMainEl.getBoundingClientRect().top);
+        crFilt.setAttribute('x', '-8'); crFilt.setAttribute('y', String(fy - 8));
+        crFilt.setAttribute('width', String(vw + 16)); crFilt.setAttribute('height', String(vh + 16));
+        crFeImg.setAttribute('x', '0'); crFeImg.setAttribute('y', String(fy));
+        crFeImg.setAttribute('width', String(vw)); crFeImg.setAttribute('height', String(vh));
+        const imgData = crCtx.createImageData(T, T);
+        const d = imgData.data;
+        for (let y = 0; y < T; y++) {
+          for (let x = 0; x < T; x++) {
+            const xl = x > 0 ? x - 1 : x, xr = x < T - 1 ? x + 1 : x;
+            const yt = y > 0 ? y - 1 : y, yb = y < T - 1 ? y + 1 : y;
+            const gx = (crWaveA[y * T + xr] - crWaveA[y * T + xl]) * 0.5;
+            const gy = (crWaveA[yb * T + x] - crWaveA[yt * T + x]) * 0.5;
+            const pi = (y * T + x) * 4;
+            d[pi]     = Math.max(0, Math.min(255, Math.round(128 + gx * 55)));
+            d[pi + 1] = Math.max(0, Math.min(255, Math.round(128 + gy * 55)));
+            d[pi + 2] = 128;
+            d[pi + 3] = 255;
+          }
+        }
+        crCtx.putImageData(imgData, 0, 0);
+        crFeImg.setAttribute('href', crCanvas.toDataURL());
+      }
+
+      function crLoop() {
+        if (!crActive) return;
+        const dx = crMx - crPrevMx, dy = crMy - crPrevMy;
+        const speed = Math.hypot(dx, dy);
+        if (speed > 0.5) {
+          const steps = Math.max(1, Math.ceil(speed / 5));
+          const perStep = Math.min(speed * 0.055, 2.0) / steps;
+          for (let s = 1; s <= steps; s++) {
+            const t = s / steps;
+            crAddImpulse(crPrevMx + dx * t, crPrevMy + dy * t, perStep);
+          }
+        }
+        crPrevMx = crMx; crPrevMy = crMy;
+        crStepWave();
+        crRender();
+        crRaf = requestAnimationFrame(crLoop);
+      }
+
+      function crEnable() {
+        crMainEl = document.querySelector<HTMLElement>('main') ?? document.body;
+        crActive = true;
+        crPrevMx = crMx; crPrevMy = crMy;
+        crWaveA = new Float32Array(T * T);
+        crWaveB = new Float32Array(T * T);
+        crBuild();
+        crRender();
+        crMainEl.style.filter = `url(#${FILT_ID})`;
+        crRaf = requestAnimationFrame(crLoop);
+        try { localStorage.setItem('cursor-ripple', '1'); } catch(e) {}
+      }
+
+      function crDisable() {
+        crActive = false;
+        if (crRaf !== null) { cancelAnimationFrame(crRaf); crRaf = null; }
+        if (crMainEl) crMainEl.style.filter = '';
+        crSvg?.remove();
+        crSvg = null; crFilt = null; crFeImg = null; crCanvas = null; crCtx = null;
+        crWaveA = null; crWaveB = null;
+        try { localStorage.removeItem('cursor-ripple'); } catch(e) {}
+      }
+
+      (window as any).__crFilter = () => crActive ? `url(#${FILT_ID})` : '';
+
+      const crBtn = document.getElementById('cursor-ripple-btn');
+      crBtn?.addEventListener('click', () => {
+        crActive ? crDisable() : crEnable();
+        crBtn.setAttribute('aria-pressed', crActive ? 'true' : 'false');
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        crMx = e.clientX; crMy = e.clientY;
+      }, { passive: true });
+
+      try {
+        if (localStorage.getItem('cursor-ripple') === '1') {
+          crEnable();
+          crBtn?.setAttribute('aria-pressed', 'true');
+        }
+      } catch(e) {}
+    }
+  </script>
+
+  <script>
+    import { gsap } from 'gsap';
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      // ── button water-ripple effect ────────────────────────────────────────
+      // Hover: scale up + small displacement ripple from button centre.
+      // Click: pulse + bigger ripple.
+      // Uses the same feDisplacementMap system as the colour-picker via window.__wripple.
+
+      function btnCenter(btn: HTMLElement) {
+        const r = btn.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }
+
+      document.querySelectorAll<HTMLElement>('.btn').forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+          if ((window as any).__crFilter?.()) return;
+          const { x, y } = btnCenter(btn);
+          (window as any).__wripple?.(x, y, true);
+        });
+
+        btn.addEventListener('click', () => {
+          if ((btn as HTMLAnchorElement).hash) {
+            (window as any).__wripplestop?.();
+            return;
+          }
+          if ((window as any).__crFilter?.()) return;
+          const { x, y } = btnCenter(btn);
+          (window as any).__wripple?.(x, y, false);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

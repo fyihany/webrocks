@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#070711"/>
+  <rect width="1200" height="630" fill="url(#grad)" opacity="0.4"/>
+  <defs>
+    <radialGradient id="grad" cx="15%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#070711" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <text x="80" y="220" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="800" fill="#ffffff" letter-spacing="-4">web<tspan fill="#34d399">rocks</tspan></text>
+  <text x="84" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#8b8bad">Web Developer · webrocks.cz</text>
+  <text x="84" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="600" fill="#e8e8f0">Fast websites. Accurate data. Results.</text>
+  <text x="84" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="400" fill="#6b6b90">JavaScript · React · Next.js · Performance</text>
+</svg>

@@ -1,0 +1,759 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+const isEn = t.lang === 'en';
+
+const palette = [
+  { id: 'red',     cs: 'Červená',  en: 'Red',     base: '#ef4444', shades: ['#fecaca','#fca5a5','#f87171','#ef4444','#dc2626','#b91c1c','#991b1b','#7f1d1d','#450a0a'] },
+  { id: 'orange',  cs: 'Oranžová', en: 'Orange',  base: '#f97316', shades: ['#fed7aa','#fdba74','#fb923c','#f97316','#ea580c','#c2410c','#9a3412','#7c2d12','#431407'] },
+  { id: 'amber',   cs: 'Žlutá',    en: 'Amber',   base: '#f59e0b', shades: ['#fde68a','#fcd34d','#fbbf24','#f59e0b','#d97706','#b45309','#92400e','#78350f','#451a03'] },
+  { id: 'green',   cs: 'Zelená',   en: 'Green',   base: '#22c55e', shades: ['#bbf7d0','#86efac','#4ade80','#22c55e','#16a34a','#15803d','#166534','#14532d','#052e16'] },
+  { id: 'emerald', cs: 'Smaragd',  en: 'Emerald', base: '#10b981', shades: ['#a7f3d0','#6ee7b7','#34d399','#10b981','#059669','#047857','#065f46','#064e3b','#022c22'] },
+  { id: 'teal',    cs: 'Teal',     en: 'Teal',    base: '#14b8a6', shades: ['#99f6e4','#5eead4','#2dd4bf','#14b8a6','#0d9488','#0f766e','#115e59','#134e4a','#042f2e'] },
+  { id: 'cyan',    cs: 'Azurová',  en: 'Cyan',    base: '#06b6d4', shades: ['#a5f3fc','#67e8f9','#22d3ee','#06b6d4','#0891b2','#0e7490','#155e75','#164e63','#083344'] },
+  { id: 'sky',     cs: 'Nebeská',  en: 'Sky',     base: '#0ea5e9', shades: ['#bae6fd','#7dd3fc','#38bdf8','#0ea5e9','#0284c7','#0369a1','#075985','#0c4a6e','#082f49'] },
+  { id: 'blue',    cs: 'Modrá',    en: 'Blue',    base: '#3b82f6', shades: ['#bfdbfe','#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8','#1e40af','#1e3a8a','#172554'] },
+  { id: 'indigo',  cs: 'Indigo',   en: 'Indigo',  base: '#6366f1', shades: ['#c7d2fe','#a5b4fc','#818cf8','#6366f1','#4f46e5','#4338ca','#3730a3','#312e81','#1e1b4b'] },
+  { id: 'violet',  cs: 'Fialová',  en: 'Violet',  base: '#8b5cf6', shades: ['#ddd6fe','#c4b5fd','#a78bfa','#8b5cf6','#7c3aed','#6d28d9','#5b21b6','#4c1d95','#2e1065'] },
+  { id: 'pink',    cs: 'Růžová',   en: 'Pink',    base: '#ec4899', shades: ['#fbcfe8','#f9a8d4','#f472b6','#ec4899','#db2777','#be185d','#9d174d','#831843','#500724'] },
+].map(c => ({ ...c, name: isEn ? c.en : c.cs }));
+
+const ui = t.colorPicker;
+---
+
+<div class="cp-wrap" id="cp-wrap">
+
+  <button type="button" class="cp-trigger" id="cp-trigger" aria-expanded="false" aria-controls="cp-panel">
+    <span class="cp-trigger-swatch"></span>
+    <span class="cp-trigger-label" id="cp-trigger-label">{ui.triggerLabel}</span>
+    <svg class="cp-trigger-chevron" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+
+  <div class="cp-panel" id="cp-panel" aria-hidden="true">
+    <div class="cp-panel-inner">
+
+<div class="cp-root" id="cp-root" role="group" aria-label={ui.toolbarLabel}>
+  {palette.map((color) => (
+    <div class="cp-group" data-id={color.id}>
+
+      <div class="cp-item">
+        <button
+          type="button"
+          class="cp-dot-btn"
+          data-color={color.base}
+          data-id={color.id}
+          title={`${ui.applyPrefix}${color.name}`}
+          aria-label={color.name}
+          aria-pressed="false"
+          style={`--c: ${color.base}`}
+        >
+          <span class="cp-dot" style={`background: ${color.base}`}></span>
+        </button>
+
+        <button
+          type="button"
+          class="cp-arrow-btn"
+          data-id={color.id}
+          aria-expanded="false"
+          aria-controls={`cp-dd-${color.id}`}
+          aria-label={`${ui.shadesPrefix}${color.name}`}
+        >
+          <svg class="cp-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="cp-dropdown" id={`cp-dd-${color.id}`} aria-hidden="true">
+        <div class="cp-dd-header">
+          <span class="cp-dd-name">{color.name}</span>
+          <span class="cp-dd-count">{color.shades.length}{ui.shadesSuffix}</span>
+        </div>
+        <div class="cp-shades">
+          {color.shades.map((shade, i) => (
+            <button
+              type="button"
+              class="cp-shade"
+              data-color={shade}
+              style={`background:${shade}; --i:${i}`}
+              title={shade}
+              aria-label={`${ui.shadeLabel} ${i + 1}: ${shade}`}
+              aria-pressed="false"
+            />
+          ))}
+        </div>
+      </div>
+
+    </div>
+  ))}
+</div>
+
+    </div><!-- .cp-panel-inner -->
+  </div><!-- .cp-panel -->
+
+</div><!-- .cp-wrap -->
+
+<script>
+  import { animate } from 'animejs';
+  import { gsap } from 'gsap';
+
+  const root    = document.getElementById('cp-root')!;
+  const wrap    = document.getElementById('cp-wrap')!;
+  const trigger = document.getElementById('cp-trigger')!;
+  const panel   = document.getElementById('cp-panel')!;
+  let panelOpen = false;
+
+  function openPanel() {
+    if (panelOpen) return;
+    panelOpen = true;
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    trigger.setAttribute('aria-expanded', 'true');
+    gsap.fromTo(panel, { opacity: 0, y: -10, scale: 0.96 }, {
+      opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'power3.out',
+    });
+    gsap.fromTo(root.querySelectorAll<HTMLElement>('.cp-dot'), { scale: 0, opacity: 0 }, {
+      scale: 1, opacity: 1, duration: 0.28, stagger: 0.025, ease: 'back.out(2)',
+      delay: 0.06,
+    });
+  }
+
+  function closePanel() {
+    if (!panelOpen) return;
+    panelOpen = false;
+    closeAll();
+    trigger.setAttribute('aria-expanded', 'false');
+    gsap.to(panel, {
+      opacity: 0, y: -8, scale: 0.97, duration: 0.16, ease: 'power2.in',
+      onComplete: () => {
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+        gsap.set(panel, { clearProps: 'opacity,y,scale' });
+      },
+    });
+  }
+
+  function updateTriggerLabel(color: string, sourceEl?: HTMLElement) {
+    const label = document.getElementById('cp-trigger-label');
+    if (!label) return;
+    let gid: string | null | undefined;
+    if (sourceEl?.classList.contains('cp-dot-btn')) {
+      gid = sourceEl.dataset.id;
+    } else if (sourceEl?.classList.contains('cp-shade')) {
+      gid = sourceEl.closest('.cp-group')?.getAttribute('data-id');
+    } else {
+      gid = root.querySelector<HTMLElement>(`.cp-dot-btn[data-color="${color}"]`)?.dataset.id
+         ?? root.querySelector<HTMLElement>(`.cp-shade[data-color="${color}"]`)
+              ?.closest('.cp-group')?.getAttribute('data-id');
+    }
+    const name = gid
+      ? document.getElementById(`cp-dd-${gid}`)?.querySelector<HTMLElement>('.cp-dd-name')?.textContent
+      : null;
+    if (name) label.textContent = name;
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panelOpen ? closePanel() : openPanel();
+  });
+
+  // ── helpers ───────────────────────────────────────────────────────────────
+  function hexToRgb(hex: string) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+  function darken(hex: string, amt = 25) {
+    const [r,g,b] = hexToRgb(hex);
+    const cl = (v: number) => Math.max(0, Math.min(255, v - amt));
+    return `rgb(${cl(r)},${cl(g)},${cl(b)})`;
+  }
+
+  // ── water ripple ─────────────────────────────────────────────────────────
+  let rippleCleanup: (() => void) | null = null;
+
+  type RippleOpts = {
+    ox?: number;          // wave origin x (default: screen centre)
+    oy?: number;          // wave origin y (default: screen centre)
+    maxScale?: number;    // feDisplacementMap peak scale px (default: 38)
+    travel?: number;      // ms for wave to reach maxRadius (or screen edge) (default: 1300)
+    rings?: number;       // number of concentric rings (default: 4)
+    ringGap?: number;     // ms between ring emissions (default: 140)
+    skipColors?: boolean; // skip element colour animation (default: false)
+    maxRadius?: number;   // max screen px the wave travels from origin (default: full screen)
+  };
+
+  function launchWaterRipple(color: string, opts: RippleOpts = {}) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    rippleCleanup?.();
+
+    const [r, g, b] = hexToRgb(color);
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Wave origin — defaults to screen centre, overridable for button use
+    const cx = opts.ox ?? vw / 2;
+    const cy = opts.oy ?? vh / 2;
+
+    // Max screen distance from origin (to corner)
+    const maxDist = Math.max(
+      Math.hypot(cx, cy),
+      Math.hypot(vw - cx, cy),
+      Math.hypot(cx, vh - cy),
+      Math.hypot(vw - cx, vh - cy),
+    );
+
+    const TRAVEL   = opts.travel   ?? 1300;
+    const RINGS    = opts.rings    ?? 4;
+    const RING_GAP = opts.ringGap  ?? 140;
+    const MAX_SCALE = opts.maxScale ?? 38;
+    const screenMaxR = opts.maxRadius ?? maxDist;
+
+    // ── GSAP colour wave (colour-change ripples only) ──────────────────────
+    const colorTweens: gsap.core.Tween[] = [];
+    if (!opts.skipColors) {
+      const newRgb  = `rgb(${r},${g},${b})`;
+      const newGlow = `rgba(${r},${g},${b},0.12)`;
+      const COLOR_GROUPS: { sel: string; props: Record<string, string> }[] = [
+        { sel: '.section-label,.logo span,.hero-greeting,.hero-headline .word-accent,.project-link,.pricing-rate-value',
+          props: { color: newRgb } },
+        { sel: '.tag,.service-icon,.contact-info-icon',
+          props: { color: newRgb, backgroundColor: newGlow } },
+        { sel: '.btn-primary',
+          props: { backgroundColor: newRgb } },
+        { sel: '.pricing-card.featured',
+          props: { borderColor: newRgb } },
+      ];
+      COLOR_GROUPS.forEach(({ sel, props }) => {
+        document.querySelectorAll<HTMLElement>(sel).forEach(el => {
+          const rect  = el.getBoundingClientRect();
+          const dist  = Math.hypot(rect.left + rect.width / 2 - cx, rect.top + rect.height / 2 - cy);
+          const delay = (dist / maxDist) * TRAVEL / 1000;
+          const cs    = getComputedStyle(el);
+          const from: Record<string, string> = {};
+          for (const key of Object.keys(props))
+            from[key] = cs[key as keyof CSSStyleDeclaration] as string;
+          colorTweens.push(gsap.fromTo(el, from, {
+            ...props, duration: 0.45, ease: 'power2.inOut', delay,
+            clearProps: Object.keys(props).join(','),
+          }));
+        });
+      });
+    }
+    const killColorTweens = () => colorTweens.forEach(t => t.kill());
+
+    // ── SVG feDisplacementMap on <main> ───────────────────────────────────
+    const mainEl  = document.querySelector<HTMLElement>('main') ?? document.body;
+    const mainTop = mainEl.getBoundingClientRect().top;
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg    = document.createElementNS(NS, 'svg') as SVGSVGElement;
+    const defs   = document.createElementNS(NS, 'defs');
+    const filt   = document.createElementNS(NS, 'filter');
+    const feImg  = document.createElementNS(NS, 'feImage');
+    const feDisp = document.createElementNS(NS, 'feDisplacementMap');
+    const filtId = `wr${Date.now()}`;
+
+    svg.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;';
+    svg.setAttribute('aria-hidden', 'true');
+
+    const fy = Math.round(-mainTop);
+    filt.setAttribute('id', filtId);
+    filt.setAttribute('filterUnits', 'userSpaceOnUse');
+    filt.setAttribute('x', '-8');          filt.setAttribute('y', String(fy - 8));
+    filt.setAttribute('width', String(vw + 16)); filt.setAttribute('height', String(vh + 16));
+    filt.setAttribute('color-interpolation-filters', 'sRGB');
+
+    feImg.setAttribute('result', 'wmap');
+    feImg.setAttribute('x', '0');          feImg.setAttribute('y', String(fy));
+    feImg.setAttribute('width', String(vw)); feImg.setAttribute('height', String(vh));
+    feImg.setAttribute('preserveAspectRatio', 'none');
+
+    feDisp.setAttribute('in', 'SourceGraphic'); feDisp.setAttribute('in2', 'wmap');
+    feDisp.setAttribute('scale', '0');
+    feDisp.setAttribute('xChannelSelector', 'R'); feDisp.setAttribute('yChannelSelector', 'G');
+
+    filt.append(feImg, feDisp); defs.append(filt); svg.append(defs);
+    document.body.appendChild(svg);
+    mainEl.style.filter = `url(#${filtId})`;
+
+    // ── Displacement texture ──────────────────────────────────────────────
+    // 256×256 maps to viewport. Origin (cx,cy) → texture pixel (texCx,texCy).
+    const TEX   = 256;
+    const texCx = (cx / vw) * TEX;
+    const texCy = (cy / vh) * TEX;
+    const tMaxDist = Math.max(
+      Math.hypot(texCx, texCy),
+      Math.hypot(TEX - texCx, texCy),
+      Math.hypot(texCx, TEX - texCy),
+      Math.hypot(TEX - texCx, TEX - texCy),
+    );
+    // maxRadius in texture-pixel units
+    const maxRadiusTex = opts.maxRadius != null ? (opts.maxRadius / maxDist) * tMaxDist : null;
+    const texC = document.createElement('canvas');
+    texC.width = texC.height = TEX;
+    const tctx = texC.getContext('2d')!;
+
+
+    const proxy = { scale: 0 };
+    const setScale = () => feDisp.setAttribute('scale', String(Math.round(proxy.scale)));
+    gsap.to(proxy, { scale: MAX_SCALE, duration: 0.2, ease: 'power3.out', onUpdate: setScale });
+
+    let t0: number | null = null;
+    let raf: number;
+    let fadingOut = false;
+    const TOTAL = TRAVEL + RINGS * RING_GAP + 150;
+
+    function frame(ts: number) {
+      if (!t0) t0 = ts;
+      const elapsed = ts - t0;
+
+      const imgData = tctx.createImageData(TEX, TEX);
+      const data    = imgData.data;
+      for (let py = 0; py < TEX; py++) {
+        for (let px = 0; px < TEX; px++) {
+          const dx   = px - texCx;
+          const dy   = py - texCy;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const nx   = dx / dist;
+          const ny   = dy / dist;
+          const ang = Math.atan2(dy, dx);
+          let disp = 0;
+          for (let w = 0; w < RINGS; w++) {
+            const wt  = elapsed - w * RING_GAP;
+            if (wt <= 0) continue;
+            const wR   = (wt / TRAVEL) * tMaxDist;
+            // Angular perturbation — breaks perfect circular symmetry like real water
+            const angPert = 0.06 * (Math.sin(ang * 5.3 + wt * 0.0011) + Math.sin(ang * 2.9 - wt * 0.0007));
+            const relD = dist * (1 + angPert) - wR;
+            const wLen = tMaxDist * 0.09;
+            const env  = Math.exp(-0.5 * (relD / (wLen * 0.42)) ** 2);
+            const att  = Math.max(0, 1 - wt / (TRAVEL * 1.05));
+            // Stokes-like wave: steeper crests, flatter troughs
+            const phi = -relD / wLen * Math.PI * 2;
+            disp += (Math.sin(phi) - 0.22 * Math.sin(2 * phi)) * env * att;
+          }
+          if (maxRadiusTex != null) {
+            const fade = Math.max(0, 1 - Math.max(0, dist - maxRadiusTex * 0.7) / (maxRadiusTex * 0.3));
+            disp *= fade;
+          }
+          const idx = (py * TEX + px) * 4;
+          data[idx]     = Math.max(0, Math.min(255, 128 + disp * nx * 85));
+          data[idx + 1] = Math.max(0, Math.min(255, 128 + disp * ny * 85));
+          data[idx + 2] = 128;
+          data[idx + 3] = 255;
+        }
+      }
+      tctx.putImageData(imgData, 0, 0);
+      feImg.setAttribute('href', texC.toDataURL());
+
+
+      if (elapsed >= TOTAL && !fadingOut) {
+        fadingOut = true;
+        gsap.to(proxy, {
+          scale: 0, duration: 0.45, ease: 'power2.in', onUpdate: setScale,
+          onComplete: () => { mainEl.style.filter = (window as any).__crFilter?.() ?? ''; svg.remove(); },
+        });
+      }
+      if (elapsed < TOTAL + 500) raf = requestAnimationFrame(frame);
+    }
+
+    raf = requestAnimationFrame(frame);
+    rippleCleanup = () => {
+      cancelAnimationFrame(raf);
+      gsap.killTweensOf(proxy);
+      killColorTweens();
+      mainEl.style.filter = (window as any).__crFilter?.() ?? '';
+      svg.remove();
+    };
+    setTimeout(() => { rippleCleanup = null; }, TRAVEL + 800);
+  }
+
+  // Expose for cross-script use (Layout.astro button effects)
+  (window as any).__wripple = (ox: number, oy: number, small = false) => {
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    launchWaterRipple(accent, {
+      ox, oy,
+      skipColors: true,
+      maxScale:  small ? 4  : 7,
+      travel:    small ? 2000 : 2500,
+      rings:     2,
+      ringGap:   120,
+      maxRadius: 200,
+    });
+  };
+
+  (window as any).__wripplestop = () => rippleCleanup?.();
+
+  function applyAccent(color: string, sourceEl?: HTMLElement, silent = false) {
+    const [r,g,b] = hexToRgb(color);
+    try { localStorage.setItem('accent-color', color); } catch (e) {}
+
+    const setVars = () => {
+      const s = document.documentElement.style;
+      s.setProperty('--accent', color);
+      s.setProperty('--accent-dark', darken(color));
+      s.setProperty('--accent-glow', `rgba(${r},${g},${b},0.12)`);
+      s.setProperty('--accent-glow-strong', `rgba(${r},${g},${b},0.25)`);
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#0e0e1c"/><text x="7" y="46" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="800" fill="${color}">W</text><circle cx="52" cy="44" r="5" fill="${color}"/></svg>`;
+      const faviconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+      if (faviconLink) faviconLink.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    };
+
+    // update active states
+    root.querySelectorAll('.cp-dot-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+    root.querySelectorAll('.cp-shade').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+    if (sourceEl?.classList.contains('cp-dot-btn')) {
+      sourceEl.classList.add('active');
+      sourceEl.setAttribute('aria-pressed', 'true');
+    } else if (sourceEl?.classList.contains('cp-shade')) {
+      sourceEl.classList.add('selected');
+      sourceEl.setAttribute('aria-pressed', 'true');
+      const gid = sourceEl.closest('.cp-group')?.getAttribute('data-id');
+      const dotBtn = root.querySelector<HTMLElement>(`.cp-dot-btn[data-id="${gid}"]`);
+      dotBtn?.classList.add('active');
+      dotBtn?.setAttribute('aria-pressed', 'true');
+    }
+
+    updateTriggerLabel(color, sourceEl);
+    if (silent || !sourceEl) { setVars(); return; }
+
+    // launch ripple — set transitions first, then update vars in next frame
+    launchWaterRipple(color);
+    requestAnimationFrame(setVars);
+
+    // elastic bounce on the clicked element
+    const dotEl = sourceEl.classList.contains('cp-dot-btn')
+      ? sourceEl.querySelector<HTMLElement>('.cp-dot')!
+      : sourceEl;
+
+    // push siblings behind, elevate animating element
+    const siblings = Array.from(
+      dotEl.closest('.cp-shades')?.querySelectorAll<HTMLElement>('.cp-shade') ?? []
+    ).filter(s => s !== dotEl);
+    siblings.forEach(s => { s.style.zIndex = '-1'; });
+
+    gsap.timeline({ onComplete: () => {
+      siblings.forEach(s => { s.style.zIndex = ''; });
+      gsap.set(dotEl, { clearProps: 'zIndex' });
+    }})
+      .to(dotEl, { scale: 1.6, zIndex: 100, duration: 0.14, ease: 'power2.out', transformOrigin: 'center' })
+      .to(dotEl, { scale: 0.88, duration: 0.1, ease: 'power2.in' })
+      .to(dotEl, { scale: 1.12, duration: 0.12, ease: 'power2.out' })
+      .to(dotEl, { scale: 1, duration: 0.3, ease: 'elastic.out(1, 0.4)' });
+
+    // logo elastic bounce
+    const logoSpan = document.querySelector<HTMLElement>('.logo span');
+    if (logoSpan) {
+      gsap.timeline()
+        .to(logoSpan, { scale: 1.3, duration: 0.14, ease: 'power3.out', transformOrigin: 'center' })
+        .to(logoSpan, { scale: 1,   duration: 0.5,  ease: 'elastic.out(1, 0.35)' });
+    }
+  }
+
+  // ── dropdown open / close ─────────────────────────────────────────────────
+  let openId: string | null = null;
+
+  function openDropdown(id: string) {
+    const dd = document.getElementById(`cp-dd-${id}`)!;
+    const btn = root.querySelector<HTMLElement>(`.cp-arrow-btn[data-id="${id}"]`)!;
+
+    closeAll();
+    openId = id;
+    dd.classList.add('open');
+    dd.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+
+    gsap.to(btn.querySelector('.cp-chevron'), { rotation: 180, duration: 0.25, ease: 'power2.out' });
+
+    const shades = dd.querySelectorAll<HTMLElement>('.cp-shade');
+    gsap.set(shades, { opacity: 0, scale: 0.5, y: -8 });
+    gsap.fromTo(dd, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.22, ease: 'power3.out' });
+    gsap.to(shades, {
+      opacity: 1, scale: 1, y: 0,
+      duration: 0.28,
+      stagger: 0.028,
+      ease: 'back.out(2.5)',
+      delay: 0.06,
+    });
+  }
+
+  function closeAll() {
+    if (!openId) return;
+    const dd = document.getElementById(`cp-dd-${openId}`);
+    const btn = root.querySelector<HTMLElement>(`.cp-arrow-btn[data-id="${openId}"]`);
+    if (dd) {
+      gsap.to(dd, {
+        opacity: 0, y: -6, duration: 0.15, ease: 'power2.in',
+        onComplete: () => { dd.classList.remove('open'); dd.setAttribute('aria-hidden','true'); gsap.set(dd, { clearProps: 'opacity,y' }); },
+      });
+    }
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      gsap.to(btn.querySelector('.cp-chevron'), { rotation: 0, duration: 0.2, ease: 'power2.out' });
+    }
+    openId = null;
+  }
+
+  // ── hover: dots ───────────────────────────────────────────────────────────
+  root.querySelectorAll<HTMLElement>('.cp-dot-btn').forEach(btn => {
+    const dot = btn.querySelector<HTMLElement>('.cp-dot')!;
+    btn.addEventListener('mouseenter', () =>
+      animate(dot, { scale: 1.35, duration: 180, easing: 'easeOutQuad' }));
+    btn.addEventListener('mouseleave', () =>
+      animate(dot, { scale: btn.classList.contains('active') ? 1.15 : 1, duration: 180, easing: 'easeOutQuad' }));
+  });
+
+  // ── hover: shades ─────────────────────────────────────────────────────────
+  root.querySelectorAll<HTMLElement>('.cp-shade').forEach(shade => {
+    shade.addEventListener('mouseenter', () =>
+      gsap.to(shade, { scale: 1.2, duration: 0.14, ease: 'power2.out' }));
+    shade.addEventListener('mouseleave', () => {
+      if (!shade.classList.contains('selected'))
+        gsap.to(shade, { scale: 1, duration: 0.14, ease: 'power2.out' });
+    });
+  });
+
+  // ── click events ──────────────────────────────────────────────────────────
+  root.querySelectorAll<HTMLElement>('.cp-dot-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAll();
+      applyAccent(btn.dataset.color!, btn);
+    });
+  });
+
+  root.querySelectorAll<HTMLElement>('.cp-arrow-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id!;
+      openId === id ? closeAll() : openDropdown(id);
+    });
+  });
+
+  root.querySelectorAll<HTMLElement>('.cp-shade').forEach(shade => {
+    shade.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const gid = shade.closest('.cp-group')?.getAttribute('data-id');
+      applyAccent(shade.dataset.color!, shade);
+      setTimeout(() => {
+        closeAll();
+        if (gid) root.querySelector<HTMLElement>(`.cp-arrow-btn[data-id="${gid}"]`)?.focus();
+      }, 650);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target as Node)) closePanel();
+    else closeAll();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (openId) { closeAll(); }
+    else if (panelOpen) { closePanel(); trigger.focus(); }
+  });
+
+  // ── restore on load (silent) ──────────────────────────────────────────────
+  try {
+    const saved = localStorage.getItem('accent-color');
+    if (saved) {
+      const dotBtn = root.querySelector<HTMLElement>(`.cp-dot-btn[data-color="${saved}"]`);
+      applyAccent(saved, dotBtn ?? undefined, true);
+    }
+  } catch (e) {}
+</script>
+
+<style>
+  /* ── Wrapper ─────────────────────────────────────────────────────── */
+  .cp-wrap { position: relative; }
+
+  /* ── Trigger button ──────────────────────────────────────────────── */
+  .cp-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    transition: color 200ms, border-color 200ms, background 200ms, box-shadow 200ms;
+  }
+  .cp-trigger:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .cp-trigger[aria-expanded="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .cp-trigger-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+    transition: box-shadow 200ms, transform 200ms;
+  }
+  .cp-trigger:hover .cp-trigger-swatch,
+  .cp-trigger[aria-expanded="true"] .cp-trigger-swatch {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .cp-trigger-label {
+    min-width: 3.5ch;
+  }
+
+  .cp-trigger-chevron {
+    transition: transform 250ms var(--ease-out);
+    opacity: 0.5;
+    margin-inline-start: 2px;
+  }
+  .cp-trigger[aria-expanded="true"] .cp-trigger-chevron {
+    transform: rotate(180deg);
+    opacity: 0.8;
+  }
+
+  /* ── Panel ───────────────────────────────────────────────────────── */
+  .cp-panel {
+    display: none;
+    position: absolute;
+    inset-block-start: calc(100% + 8px);
+    inset-inline-end: 0;
+    z-index: 350;
+  }
+  .cp-panel.open { display: block; }
+
+  .cp-panel-inner {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md), 0 12px 40px rgba(0,0,0,0.35);
+  }
+
+  /* ── Color root ──────────────────────────────────────────────────── */
+  .cp-root {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cp-group { position: relative; }
+
+  .cp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  /* dot button */
+  .cp-dot-btn {
+    padding: 2px;
+    border-radius: 50%;
+    transition: background 150ms;
+    display: grid;
+    place-items: center;
+  }
+  .cp-dot-btn:hover { background: var(--bg-elevated); }
+  .cp-dot-btn.active .cp-dot {
+    box-shadow: 0 0 0 2.5px var(--bg-surface), 0 0 0 4px var(--c);
+    transform: scale(1.15);
+  }
+
+  .cp-dot {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    transition: box-shadow 200ms ease;
+    transform-origin: center;
+  }
+
+  /* arrow button */
+  .cp-arrow-btn {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 14px;
+    border-radius: 4px;
+    color: var(--text-subtle);
+    transition: color 150ms, background 150ms;
+  }
+  .cp-arrow-btn:hover {
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+  }
+
+  /* dropdown */
+  .cp-dropdown {
+    display: none;
+    position: absolute;
+    inset-block-start: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    z-index: 300;
+    box-shadow: var(--shadow-md);
+    min-width: 130px;
+  }
+  .cp-dropdown.open { display: block; }
+
+  .cp-dd-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-block-end: 10px;
+    gap: 6px;
+  }
+  .cp-dd-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .cp-dd-count {
+    font-size: 0.68rem;
+    color: var(--text-subtle);
+  }
+
+  .cp-shades {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .cp-shade {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transform-origin: center;
+  }
+  .cp-shade.selected { border-color: var(--text); }
+
+  .cp-dot-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 50%; }
+  .cp-arrow-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .cp-shade:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cp-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 960px) { .cp-wrap { display: none; } }
+</style>

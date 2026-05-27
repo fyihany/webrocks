@@ -1,0 +1,216 @@
+---
+import type { Translations } from '../i18n/cs';
+interface Props { t: Translations; }
+const { t } = Astro.props;
+---
+
+<section id="contact" aria-labelledby="contact-heading">
+  <div class="divider"></div>
+  <div class="container section-inner">
+    <span class="section-label">{t.labels.contact}</span>
+    <h2 class="section-title reveal" id="contact-heading">{t.contact.title}</h2>
+    <p class="section-sub reveal">{t.contact.sub}</p>
+
+    <div class="contact-grid">
+      <dl class="contact-info reveal">
+        <div class="contact-info-item">
+          <dt class="contact-info-label">
+            <div class="contact-info-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            {t.contact.emailLabel}
+          </dt>
+          <dd class="contact-info-value"><a href={`mailto:${t.contact.email}`} class="contact-email-link">{t.contact.email}</a></dd>
+        </div>
+
+        <div class="contact-info-item">
+          <dt class="contact-info-label">
+            <div class="contact-info-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+            </div>
+            {t.contact.icoLabel}
+          </dt>
+          <dd class="contact-info-value">{t.contact.ico}</dd>
+        </div>
+
+        <div class="contact-info-item">
+          <dt class="contact-info-label">
+            <div class="contact-info-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            {t.contact.responseLabel}
+          </dt>
+          <dd class="contact-info-value">{t.contact.responseValue}</dd>
+        </div>
+      </dl>
+
+      <form
+        class="contact-form reveal"
+        id="contact-form"
+        aria-label={t.a11y.contactForm}
+        action={`https://formspree.io/f/xpwrgkqr`}
+        method="POST"
+        novalidate
+      >
+        <div class="form-group">
+          <label class="form-label" for="name">{t.contact.nameLabel}</label>
+          <input class="form-input" type="text" id="name" name="name" placeholder={t.contact.namePlaceholder} required autocomplete="name" aria-describedby="name-error" aria-invalid="false" />
+          <span id="name-error" class="field-error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">{t.contact.emailLabel}</label>
+          <input class="form-input" type="email" id="email" name="email" placeholder={t.contact.emailPlaceholder} required autocomplete="email" aria-describedby="email-error" aria-invalid="false" />
+          <span id="email-error" class="field-error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="message">{t.contact.messageLabel}</label>
+          <textarea class="form-textarea" id="message" name="message" placeholder={t.contact.messagePlaceholder} required autocomplete="off" aria-describedby="message-error" aria-invalid="false"></textarea>
+          <span id="message-error" class="field-error" role="alert"></span>
+        </div>
+        <div class="form-status" id="form-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">{t.contact.send}</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ sendingText: t.contact.sending, successText: t.contact.success, errorText: t.contact.error, sendText: t.contact.send, nameRequired: t.a11y.nameRequired, emailRequired: t.a11y.emailRequired, emailInvalid: t.a11y.emailInvalid, messageRequired: t.a11y.messageRequired }}>
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const formStatus = document.getElementById('form-status');
+
+  const validationMsgs = { nameRequired, emailRequired, emailInvalid, messageRequired };
+
+  function showFieldError(field, msg) {
+    field.style.borderColor = 'var(--color-error)';
+    field.setAttribute('aria-invalid', 'true');
+    const err = document.getElementById(`${field.id}-error`);
+    if (err) err.textContent = msg;
+  }
+
+  function clearFieldErrors() {
+    form.querySelectorAll('.field-error').forEach(e => { e.textContent = ''; });
+    form.querySelectorAll('.form-input, .form-textarea').forEach(f => {
+      f.style.borderColor = '';
+      f.setAttribute('aria-invalid', 'false');
+    });
+  }
+
+  function validateForm() {
+    clearFieldErrors();
+    let firstInvalid = null;
+    const name = form.querySelector('#name');
+    const email = form.querySelector('#email');
+    const message = form.querySelector('#message');
+
+    if (!name.value.trim()) { showFieldError(name, validationMsgs.nameRequired); firstInvalid ??= name; }
+    if (!email.value.trim()) { showFieldError(email, validationMsgs.emailRequired); firstInvalid ??= email; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { showFieldError(email, validationMsgs.emailInvalid); firstInvalid ??= email; }
+    if (!message.value.trim()) { showFieldError(message, validationMsgs.messageRequired); firstInvalid ??= message; }
+    return firstInvalid;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!submitBtn || !formStatus) return;
+    const firstInvalid = validateForm();
+    if (firstInvalid) { firstInvalid.focus(); return; }
+
+    formStatus.className = 'form-status';
+    formStatus.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.setAttribute('aria-busy', 'true');
+    submitBtn.textContent = sendingText;
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+
+      if (response.ok) {
+        formStatus.className = 'form-status success';
+        formStatus.textContent = successText;
+        form.reset();
+        clearFieldErrors();
+        formStatus.focus();
+      } else {
+        throw new Error('Server error');
+      }
+    } catch {
+      formStatus.className = 'form-status error';
+      formStatus.textContent = errorText;
+      formStatus.focus();
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.removeAttribute('aria-busy');
+      submitBtn.textContent = sendText;
+    }
+  });
+</script>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('#contact .reveal').forEach((el, i) => {
+      if (el.getBoundingClientRect().top < window.innerHeight) {
+        return;
+      }
+      gsap.fromTo(el,
+        { y: 22 },
+        {
+          y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          delay: i * 0.07,
+          clearProps: 'transform',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 92%',
+            once: true,
+          },
+        }
+      );
+    });
+
+    if (document.readyState === 'complete') {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+    }
+
+    const snapContact = () => {
+      gsap.utils.toArray<HTMLElement>('#contact .reveal').forEach(el => {
+        const tweens = gsap.getTweensOf(el);
+        if (
+          !gsap.isTweening(el) &&
+          !tweens.some(t => (t as any)._ts !== 0) &&
+          (gsap.getProperty(el, 'y') as number) !== 0 &&
+          el.getBoundingClientRect().top < window.innerHeight
+        ) {
+          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(el, { clearProps: 'transform' });
+        }
+      });
+    };
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', snapContact);
+    } else {
+      let _ct: ReturnType<typeof setTimeout>;
+      window.addEventListener('scroll', () => { clearTimeout(_ct); _ct = setTimeout(snapContact, 200); }, { passive: true });
+    }
+  }
+</script>

@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { cs } from '../i18n/cs';
+
+const t = cs;
+---
+
+<Layout t={t} canonicalUrl="https://webrocks.cz/404/" noIndex={true}>
+  <main id="main" class="not-found-page" aria-labelledby="not-found-title">
+    <div class="not-found-inner">
+      <div class="not-found-code" aria-hidden="true">404</div>
+      <h1 class="not-found-title" id="not-found-title">Stránka nenalezena</h1>
+      <p class="not-found-sub" id="not-found-sub">Tato stránka neexistuje nebo byla přesunuta.</p>
+      <div class="not-found-actions">
+        <a href="/" class="btn btn-primary" id="not-found-link">Zpět na hlavní stránku</a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  if (navigator.language.startsWith('en')) {
+    document.documentElement.lang = 'en';
+    const title = document.getElementById('not-found-title');
+    const sub = document.getElementById('not-found-sub');
+    const link = document.getElementById('not-found-link') as HTMLAnchorElement | null;
+    if (title) title.textContent = 'Page not found';
+    if (sub) sub.textContent = "This page doesn't exist or has been moved.";
+    if (link) { link.textContent = 'Go to homepage'; link.href = '/en/'; }
+  }
+</script>
+
+<style>
+  .not-found-page {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+  }
+  .not-found-inner {
+    text-align: center;
+    max-width: 480px;
+  }
+  .not-found-code {
+    font-size: clamp(5rem, 15vw, 9rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.05em;
+    margin-block-end: 1rem;
+  }
+  .not-found-title {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 700;
+    margin-block-end: 0.75rem;
+    letter-spacing: -0.03em;
+  }
+  .not-found-sub {
+    color: var(--text-muted);
+    margin-block-end: 2rem;
+    line-height: 1.65;
+  }
+  .not-found-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
