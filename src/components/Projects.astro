@@ -78,14 +78,14 @@ const { t } = Astro.props;
     }
 
     const snapProjects = () => {
-      gsap.utils.toArray<HTMLElement>('.project-card').forEach(card => {
+      [...prjHeaders, ...gsap.utils.toArray<HTMLElement>('.project-card')].forEach(el => {
         if (
-          !gsap.isTweening(card) &&
-          (gsap.getProperty(card, 'opacity') as number) < 1 &&
-          card.getBoundingClientRect().top < window.innerHeight
+          !gsap.isTweening(el) &&
+          (gsap.getProperty(el, 'opacity') as number) < 1 &&
+          el.getBoundingClientRect().top < window.innerHeight
         ) {
-          gsap.getTweensOf(card).forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
-          gsap.set(card, { clearProps: 'opacity,transform' });
+          gsap.getTweensOf(el).forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(el, { clearProps: 'opacity,transform' });
         }
       });
     };
