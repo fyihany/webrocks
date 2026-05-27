@@ -50,25 +50,22 @@ const { t } = Astro.props;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!prefersReducedMotion) {
+    gsap.set('#pricing .reveal', { opacity: 0, y: 24 });
+
     gsap.utils.toArray<HTMLElement>('#pricing .reveal').forEach((el, i) => {
-      if (el.getBoundingClientRect().top < window.innerHeight) {
-        return;
-      }
-      gsap.fromTo(el,
-        { y: 22 },
-        {
-          y: 0,
-          duration: 0.55,
-          ease: 'power3.out',
-          delay: i * 0.04,
-          clearProps: 'transform',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 92%',
-            once: true,
-          },
-        }
-      );
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        ease: 'power3.out',
+        delay: i * 0.06,
+        clearProps: 'opacity,transform',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 105%',
+          once: true,
+        },
+      });
     });
 
     if (document.readyState === 'complete') {
@@ -79,15 +76,13 @@ const { t } = Astro.props;
 
     const snapPricing = () => {
       gsap.utils.toArray<HTMLElement>('#pricing .reveal').forEach(el => {
-        const tweens = gsap.getTweensOf(el);
         if (
           !gsap.isTweening(el) &&
-          !tweens.some(t => (t as any)._ts !== 0) &&
-          (gsap.getProperty(el, 'y') as number) !== 0 &&
+          (gsap.getProperty(el, 'opacity') as number) < 1 &&
           el.getBoundingClientRect().top < window.innerHeight
         ) {
-          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
-          gsap.set(el, { clearProps: 'transform' });
+          gsap.getTweensOf(el).forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(el, { clearProps: 'opacity,transform' });
         }
       });
     };

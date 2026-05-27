@@ -46,23 +46,19 @@ const { t } = Astro.props;
 
   if (!prefersReducedMotion) {
     gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, i) => {
-      if (card.getBoundingClientRect().top < window.innerHeight) {
-        return;
-      }
-      gsap.fromTo(card,
-        { x: i % 2 === 0 ? -24 : 24 },
-        {
-          x: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          clearProps: 'transform',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 92%',
-            once: true,
-          },
-        }
-      );
+      gsap.set(card, { opacity: 0, x: i % 2 === 0 ? -28 : 28 });
+      gsap.to(card, {
+        opacity: 1,
+        x: 0,
+        duration: 0.65,
+        ease: 'power3.out',
+        clearProps: 'opacity,transform',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 105%',
+          once: true,
+        },
+      });
     });
 
     if (document.readyState === 'complete') {
@@ -73,15 +69,13 @@ const { t } = Astro.props;
 
     const snapProjects = () => {
       gsap.utils.toArray<HTMLElement>('.project-card').forEach(card => {
-        const tweens = gsap.getTweensOf(card);
         if (
           !gsap.isTweening(card) &&
-          !tweens.some(t => (t as any)._ts !== 0) &&
-          (gsap.getProperty(card, 'x') as number) !== 0 &&
+          (gsap.getProperty(card, 'opacity') as number) < 1 &&
           card.getBoundingClientRect().top < window.innerHeight
         ) {
-          tweens.forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
-          gsap.set(card, { clearProps: 'transform' });
+          gsap.getTweensOf(card).forEach(t => { (t as any).scrollTrigger?.kill(); t.kill(); });
+          gsap.set(card, { clearProps: 'opacity,transform' });
         }
       });
     };

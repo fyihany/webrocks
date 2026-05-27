@@ -732,4 +732,5 @@ section { padding-block: var(--section-y); scroll-margin-block-start: 5rem; }
   .scroll-arrow { animation: none; }
   html { scroll-behavior: auto; }
   .card:hover, .card:focus-within { transform: none; }
+  .reveal, .service-card { opacity: 1 !important; transform: none !important; }
 }
