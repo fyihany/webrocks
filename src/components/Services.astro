@@ -14,9 +14,9 @@ const icons: Record<string, string> = {
 
 <section id="services" aria-labelledby="services-heading">
   <div class="container">
-    <span class="section-label">{t.labels.services}</span>
-    <h2 class="section-title" id="services-heading">{t.services.title}</h2>
-    <p class="section-sub">{t.services.sub}</p>
+    <span class="section-label reveal">{t.labels.services}</span>
+    <h2 class="section-title reveal" id="services-heading">{t.services.title}</h2>
+    <p class="section-sub reveal">{t.services.sub}</p>
 
     <ul class="services-grid" role="list">
       {t.services.items.map((item) => (
@@ -39,6 +39,16 @@ const icons: Record<string, string> = {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!prefersReducedMotion) {
+    const svcHeaders = gsap.utils.toArray<HTMLElement>('#services .section-label, #services .section-title, #services .section-sub');
+    gsap.set(svcHeaders, { opacity: 0, y: 20 });
+    svcHeaders.forEach((el, i) => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.5, ease: 'power3.out',
+        delay: i * 0.08, clearProps: 'opacity,transform',
+        scrollTrigger: { trigger: el, start: 'top 105%', once: true },
+      });
+    });
+
     gsap.set('.service-card', { opacity: 0, y: 24 });
 
     gsap.utils.toArray<HTMLElement>('.service-card').forEach((card, i) => {

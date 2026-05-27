@@ -7,9 +7,9 @@ const { t } = Astro.props;
 <section id="projects" aria-labelledby="projects-heading">
   <div class="divider"></div>
   <div class="container section-inner">
-    <span class="section-label">{t.labels.portfolio}</span>
-    <h2 class="section-title" id="projects-heading">{t.projects.title}</h2>
-    <p class="section-sub">{t.projects.sub}</p>
+    <span class="section-label reveal">{t.labels.portfolio}</span>
+    <h2 class="section-title reveal" id="projects-heading">{t.projects.title}</h2>
+    <p class="section-sub reveal">{t.projects.sub}</p>
 
     <ul class="projects-grid" role="list">
       {t.projects.items.map((project) => (
@@ -45,6 +45,16 @@ const { t } = Astro.props;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!prefersReducedMotion) {
+    const prjHeaders = gsap.utils.toArray<HTMLElement>('#projects .section-label, #projects .section-title, #projects .section-sub');
+    gsap.set(prjHeaders, { opacity: 0, y: 20 });
+    prjHeaders.forEach((el, i) => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.5, ease: 'power3.out',
+        delay: i * 0.08, clearProps: 'opacity,transform',
+        scrollTrigger: { trigger: el, start: 'top 105%', once: true },
+      });
+    });
+
     gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, i) => {
       gsap.set(card, { opacity: 0, x: i % 2 === 0 ? -28 : 28 });
       gsap.to(card, {
