@@ -676,6 +676,7 @@ section { padding-block: var(--section-y); scroll-margin-block-start: 5rem; }
   width: 100%;
   height: 1px;
   background: linear-gradient(to right, transparent, var(--border), transparent);
+  transform-origin: center;
 }
 
 

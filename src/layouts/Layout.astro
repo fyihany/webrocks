@@ -384,5 +384,49 @@ const breadcrumbSchema = {
       });
     }
   </script>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      // Dividers: draw the line from centre outward
+      gsap.utils.toArray<HTMLElement>('.divider').forEach(el => {
+        gsap.fromTo(el,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            duration: 0.7,
+            ease: 'power2.out',
+            clearProps: 'transform',
+            scrollTrigger: { trigger: el, start: 'top 105%', once: true },
+          }
+        );
+      });
+      // Footer: fade + slide in
+      const footer = document.querySelector<HTMLElement>('footer');
+      if (footer) {
+        gsap.set(footer, { opacity: 0, y: 20 });
+        gsap.to(footer, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          clearProps: 'opacity,transform',
+          scrollTrigger: { trigger: footer, start: 'top 105%', once: true },
+        });
+      }
+
+      if (document.readyState === 'complete') {
+        ScrollTrigger.refresh();
+      } else {
+        window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+      }
+    }
+  </script>
 </body>
 </html>
